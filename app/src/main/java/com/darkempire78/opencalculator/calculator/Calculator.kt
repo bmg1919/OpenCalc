@@ -76,6 +76,11 @@ class Calculator(
         val firstPart = sqrtTwoPi * t.pow(z + 0.5) * exp(-t)
         val result = firstPart * a
 
+        if (result.isNaN()) {
+            is_infinity = true
+            return BigDecimal.ZERO
+        }
+
         return BigDecimal(result, MathContext.DECIMAL64)
     }
 
