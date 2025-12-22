@@ -18,7 +18,6 @@ import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.round
 import kotlin.math.sin
-import kotlin.math.sqrt
 import kotlin.math.tan
 
 var division_by_0 = false
@@ -54,29 +53,64 @@ class Calculator(
     private fun gammaLanczos(x: BigDecimal): BigDecimal {
         // Lanczos approximation parameters
         val p = arrayOf(
-            676.5203681218851,
-            -1259.1392167224028,
-            771.3234287776531,
-            -176.6150291621406,
-            12.507343278686905,
-            -0.13857109526572012,
-            9.984369578019572e-6,
-            1.5056327351493116e-7
+            BigDecimal("676.5203681218851"),
+            BigDecimal("-1259.1392167224028"),
+            BigDecimal("771.32342877765313"),
+            BigDecimal("-176.61502916214059"),
+            BigDecimal("12.507343278686905"),
+            BigDecimal("-0.13857109526572012"),
+            BigDecimal("9.9843695780195716e-6"),
+            BigDecimal("1.5056327351493116e-7")
         )
-        val g = 7.0
-        val z = x.toDouble() - 1.0
+        val g = BigDecimal("7.0")
+        val one = BigDecimal.ONE
+        val half = BigDecimal("0.5")
+        val two = BigDecimal("2.0")
+        val pi = BigDecimal(Math.PI.toString(), MathContext.DECIMAL64)
 
-        var a = 0.9999999999998099
+        val z = x.subtract(one)
+
+        var a = BigDecimal("0.9999999999998099")
         for (i in p.indices) {
-            a += p[i] / (z + i + 1)
+            a = a.add(p[i].divide(z.add(BigDecimal(i).add(one)), MathContext.DECIMAL64))
         }
 
-        val t = z + g + 0.5
-        val sqrtTwoPi = sqrt(2.0 * PI)
-        val firstPart = sqrtTwoPi * t.pow(z + 0.5) * exp(-t)
-        val result = firstPart * a
+        val t = z.add(g).add(half)
+        val sqrtTwoPi = sqrt(two.multiply(pi))
 
-        return BigDecimal(result, MathContext.DECIMAL64)
+        var firstPart: BigDecimal
+
+        try {
+            firstPart = sqrtTwoPi.multiply(pow(t, add(z, half), MathContext.DECIMAL64))
+                .multiply(exp(t.negate(), MathContext.DECIMAL64))
+        } catch (e: Exception) {
+            is_infinity = true
+            return BigDecimal.ZERO
+        }
+
+        val result = firstPart.multiply(a)
+
+        return result
+    }
+
+    // Helper function to allow exp() for BigDecimal
+    private fun exp(x: BigDecimal, mc: MathContext): BigDecimal {
+        return BigDecimal(exp(x.toDouble()).toString(), mc)
+    }
+
+    private fun sqrt(x: BigDecimal): BigDecimal = kotlin.math.sqrt(x.toDouble()).toBigDecimal()
+
+    // Helper to allow pow() for BigDecimal
+    private fun pow(base: BigDecimal, exponent: BigDecimal, mc: MathContext): BigDecimal {
+        // Convert to natural logarithm: a^b = e^(b*ln(a))
+        val lnBase = BigDecimal(ln(base.toDouble()).toString(), mc)
+        val exponentTimesLnBase = exponent.multiply(lnBase, mc)
+        return exp(exponentTimesLnBase, mc)
+    }
+
+    // Helper function to allow add() for BigDecimal
+    private fun add(a: BigDecimal, b: BigDecimal): BigDecimal {
+        return a.add(b, MathContext.DECIMAL64)
     }
 
     private fun exponentiation(x: BigDecimal, parseFactor: BigDecimal): BigDecimal {

@@ -121,14 +121,14 @@ class ExpressionUnitTest {
 
     @Test
     fun decimal_factorial_shows_correct_result() {
-        val factorial1 = calculate("5.003!", false).toDouble()
-        assertEquals(120.6158752971739,factorial1,0.0)
+        var factorial = calculate("5.003!", false).toDouble()
+        assertEquals(120.61587529717441,factorial,0.0)
 
-        val factorial2 = calculate("3.01!", false).toDouble()
-        assertEquals(6.075928540616668,factorial2,0.0)
+        factorial = calculate("3.01!", false).toDouble()
+        assertEquals(6.075928540616692,factorial,0.0)
 
-        val factorial3 = calculate("7.08!", false).toDouble()
-        assertEquals(5924.414931297129,factorial3,0.0)
+        factorial = calculate("7.08!", false).toDouble()
+        assertEquals(5924.414931297131,factorial,0.0)
     }
 
 
