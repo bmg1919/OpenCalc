@@ -662,6 +662,20 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
+                    withContext(Dispatchers.Main) {
+                        if (formattedResult != calculation) {
+                            val tView = findViewById<TextView>(R.id.resultDisplay)
+                            if (showFraction && '.' in formattedResult) {
+                                val precision = getFractionPrecision().toDouble()
+                                decimalToFraction(formattedResult, precision, tView)
+                            } else {
+                                binding.resultDisplay.text = formattedResult
+                            }
+                        } else if (!showFraction && !isEqualLastAction){
+                            binding.resultDisplay.text = ""
+                        }
+                    }
+
                     // Save to history if the option autoSaveCalculationWithoutEqualButton is enabled
                     if (MyPreferences(this@MainActivity).autoSaveCalculationWithoutEqualButton) {
                         if (calculation != formattedResult) {
